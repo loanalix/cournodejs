@@ -98,6 +98,7 @@ app.post('/pokemon/update/list', jsonParser, (req, res) => {
   },{
       $set: {
           name:body.name,
+          types:body.types
          
       }
   }).then(function(result,err){
