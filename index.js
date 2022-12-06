@@ -3,20 +3,21 @@ const dbo = require("./db/db");
 const app = express();
 const port = 4444;const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
+var ObjectId = require('mongodb').ObjectId;
+
 
 
 
 dbo.connectToServer();
 
-/* index.js code before... */
+//pour voir les pokémon dans la liste
 app.get("/pokemon/list", function (req, res) {
-  //on se connecte à la DB MongoDB
+
   const dbConnect = dbo.getDb();
-  //premier test permettant de récupérer mes pokemons !
+  
   dbConnect
     .collection("pokemonlist")
-    .find({}) // permet de filtrer les résultats
-    /*.limit(50) // pourrait permettre de limiter le nombre de résultats */
+    .find({})
     .toArray(function (err, result) {
       if (err) {
         res.status(400).send("Error fetching pokemons!");
@@ -24,18 +25,139 @@ app.get("/pokemon/list", function (req, res) {
         res.json(result);
       }
     });
-    /*
-    Bref lisez la doc, 
-    il y a plein de manières de faire ce qu'on veut :) 
-    */
   });
 
+  
+//pour inserer des pokémon dans la liste 
 app.post('/pokemon/insert', jsonParser, (req, res) => {
-  const body = req.body;
-  console.log('Got body:', body);
-  //on code ensuite l'insertion dans mongoDB, lisez la doc hehe !!
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("pokemonlist")
+  .insert({...body});
+  
   res.json(body);
 }); 
+
+//pour inserer des pokémon dans le pokedex 
+app.post('/pokemon/insert/pokedex', jsonParser, (req, res) => {
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("pokedex")
+  .insert({...body});
+
+  res.json(body);
+}); 
+
+//pour voir les pokémon dans le pokédex
+app.get("/pokemon/list/pokedex", function (req, res) {
+  const dbConnect = dbo.getDb();
+  dbConnect
+    .collection("pokedex")
+    .find({}) 
+    .toArray(function (err, result) {
+      if (err) {
+        res.status(400).send("Error fetching pokemons!");
+      } else {
+        res.json(result);
+      }
+    });
+  });
+
+
+
+
+
+app.post('/pokemon/update/pokedex', jsonParser, (req, res) => {
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("pokedex")
+  .updateOne({
+    _id:ObjectId(body._id)
+  },{
+      $set: {
+          name:body.name,
+          types:body.types
+      }
+  }).then(function(result,err){
+    if(err){
+      res.json(err.message);
+    }
+    res.json({"success":true});
+  });
+  
+}); 
+
+
+
+app.post('/pokemon/update/list', jsonParser, (req, res) => {
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("pokemonlist")
+  .updateOne({
+    _id:ObjectId(body._id)
+  },{
+      $set: {
+          name:body.name,
+         
+      }
+  }).then(function(result,err){
+    if(err){
+      res.json(err.message);
+    }
+    res.json({"success":true});
+  });
+  
+}); 
+
+app.delete('/pokemon/delete/pokedex', jsonParser, (req, res) => {
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("pokedex")
+  .deleteOne({name:body.name});
+  
+  res.json(body);
+});
+
+app.delete('/pokemon/delete/list', jsonParser, (req, res) => {
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("pokemonlist")
+  .deleteOne({name:body.name});
+  
+  res.json(body);
+});
+
+
+//pour inserer pulsieur types dans la variables types 
+app.post('/pokemon/insert/types', jsonParser, (req, res) => {
+  let body = req.body;
+  const dbConnect = dbo.getDb();
+  dbConnect.collection("types")
+  .insertMany(body);
+  res.json(body);
+}); 
+
+
+//pour voir les types de pokémon 
+app.get("/pokemon/list/types", function (req, res) {
+  const dbConnect = dbo.getDb();
+  dbConnect
+    .collection("types")
+    .find({}) 
+    .toArray(function (err, result) {
+      if (err) {
+        res.status(400).send("Error fetching pokemons!");
+      } else {
+        res.json(result);
+      }
+    });
+    
+  });
+
+
+  
+
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
