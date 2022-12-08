@@ -6,6 +6,9 @@ const port = 4444;const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 var ObjectId = require('mongodb').ObjectId;
 
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 
 
@@ -27,7 +30,6 @@ app.get("/pokemon/list", function (req, res) {
       }
     });
   });
-  app.use(cors())
   
 //pour inserer des pokémon dans la liste 
 app.post('/pokemon/insert', jsonParser, (req, res) => {
@@ -44,11 +46,10 @@ app.post('/pokemon/insert/pokedex', jsonParser, (req, res) => {
   let body = req.body;
   const dbConnect = dbo.getDb();
   dbConnect.collection("pokedex")
-  .insert({...body});
-
-  res.json(body);
+  .insertOne({...body})
+  .then(result=>res.json(result))
+  .catch(e=>res.json(e))
 }); 
-app.use(cors())
 
 //pour voir les pokémon dans le pokédex
 app.get("/pokemon/list/pokedex", function (req, res) {
@@ -64,7 +65,6 @@ app.get("/pokemon/list/pokedex", function (req, res) {
       }
     });
   });
-  app.use(cors())
 
 
 
@@ -88,7 +88,6 @@ app.post('/pokemon/update/pokedex', jsonParser, (req, res) => {
   });
   
 }); 
-app.use(cors())
 
 
 app.post('/pokemon/update/list', jsonParser, (req, res) => {
@@ -111,7 +110,6 @@ app.post('/pokemon/update/list', jsonParser, (req, res) => {
   });
   
 }); 
-app.use(cors())
 
 
 app.delete('/pokemon/delete/pokedex', jsonParser, (req, res) => {
@@ -122,7 +120,6 @@ app.delete('/pokemon/delete/pokedex', jsonParser, (req, res) => {
   
   res.json(body);
 });
-app.use(cors())
 
 app.delete('/pokemon/delete/list', jsonParser, (req, res) => {
   let body = req.body;
@@ -132,7 +129,6 @@ app.delete('/pokemon/delete/list', jsonParser, (req, res) => {
   
   res.json(body);
 });
-app.use(cors())
 
 //pour inserer pulsieur types dans la variables types 
 app.post('/pokemon/insert/types', jsonParser, (req, res) => {
@@ -142,7 +138,6 @@ app.post('/pokemon/insert/types', jsonParser, (req, res) => {
   .insertMany(body);
   res.json(body);
 }); 
-app.use(cors())
 
 //pour voir les types de pokémon 
 app.get("/pokemon/list/types", function (req, res) {
@@ -159,15 +154,8 @@ app.get("/pokemon/list/types", function (req, res) {
     });
     
   });
-  app.use(cors())
 
-  
-
-
-
-app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(port, function () {
   console.log(`App listening on port ${port}!`);
 });
-app.use(cors())
