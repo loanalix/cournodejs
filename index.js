@@ -99,6 +99,9 @@ app.post('/pokemon/update/list', jsonParser, (req, res) => {
   },{
       $set: {
           name:body.name,
+          Types:body.Types,
+          Types2:body.Types2,
+          img:body.img
           
          
       }
@@ -130,7 +133,7 @@ app.delete('/pokemon/delete/list', jsonParser, (req, res) => {
   res.json(body);
 });
 
-//pour inserer pulsieur types dans la variables types 
+//pour inserer types dans la table types 
 app.post('/pokemon/insert/types', jsonParser, (req, res) => {
   let body = req.body;
   const dbConnect = dbo.getDb();
@@ -154,6 +157,35 @@ app.get("/pokemon/list/types", function (req, res) {
     });
     
   });
+  app.delete('/pokemon/delete/types', jsonParser, (req, res) => {
+    let body = req.body;
+    const dbConnect = dbo.getDb();
+    dbConnect.collection("types")
+    .insertMany(body);
+    res.json(body);
+  }); 
+
+  app.post('/pokemon/update/types', jsonParser, (req, res) => {
+    let body = req.body;
+    const dbConnect = dbo.getDb();
+    dbConnect.collection("types")
+    .updateOne({
+      _id:ObjectId(body._id)
+    },{
+        $set: {
+            name:body.name,
+            
+           
+        }
+    }).then(function(result,err){
+      if(err){
+        res.json(err.message);
+      }
+      res.json({"success":true});
+    });
+    
+  }); 
+  
 
 
 app.listen(port, function () {
